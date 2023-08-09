@@ -1,3 +1,8 @@
+
+
+![face-reconigtion](https://github.com/tedzregor/face_recognition/assets/66072193/7c3cb856-1754-4eed-98c4-5c779fe504b3)
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
