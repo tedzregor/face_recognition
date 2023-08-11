@@ -7,7 +7,8 @@ import './App.css';
 import 'tachyons'
 import ParticlesBg from 'particles-bg'
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
-
+import Signin from './components/Signin/Signin';
+import Register from './components/Register/Register';
 
 class App extends Component {
   constructor() {
@@ -17,6 +18,8 @@ class App extends Component {
       input: '',
       imageUrl: '',
       box: {},
+      route: 'signin',
+      isSignedIn: false
     }
   }
 
@@ -35,7 +38,6 @@ class App extends Component {
   }
 
   displayFaceBox = (box) => {
-    console.log(box);
     this.setState({box: box});
   }
 
@@ -84,17 +86,38 @@ class App extends Component {
         .catch(error => console.log('error', error));
   }
 
+  onRouteChange = (route) => {
+    if(route === 'signout') {
+      this.setState({isSignedIn: false})
+    } else if (route === 'home') {
+      this.setState({isSignedIn: true})
+    }
+    this.setState({route : route})
+  }
+
   render() {
     return (
-    <div className="App">
-      <ParticlesBg type="cobweb" num={200} bg={true} color="#FFFFFF"/>
-      <Navigation />
-      <Logo />
-      <Rank />
-      <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-      <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
-    </div>
-  );
+      <div className="App">
+        <ParticlesBg type="cobweb" num={200} bg={true} color="#FFFFFF"/>
+        <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange}/>
+        {
+          this.state.route === 'home'
+          ?  <div>
+              <Logo />
+              <Rank />
+              <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
+              <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
+            </div>
+          : (
+              this.state.route === 'signin' 
+              ? <Signin onRouteChange={this.onRouteChange}/>
+              : <Register onRouteChange={this.onRouteChange}/>
+             )
+          
+           
+        } 
+      </div>
+    );
   }
 }
 
