@@ -10,6 +10,21 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
+  }
+}
+
 class App extends Component {
   constructor() {
     super()
@@ -29,12 +44,6 @@ class App extends Component {
       }
     }
   }
-
-  // componentDidMount() {
-  //   fetch('http://localhost:3001')
-  //     .then(response => response.json())
-  //     .then(console.log)
-  // }
 
   loaduser = (data) => {
     this.setState({
@@ -70,65 +79,100 @@ class App extends Component {
     this.setState({input: event.target.value});
   }
 
+  // onButtonSubmit = () => {
+  //   this.setState({imageUrl: this.state.input});
+    
+  //   const PAT = 'f41bf90f24ec43e9971cb08b1da25c17';
+  //   const USER_ID = '866k7usojo3m';       
+  //   const APP_ID = 'test';
+  //   const MODEL_ID = 'face-detection';
+  //   const IMAGE_URL = this.state.input;
+
+  //   const raw = JSON.stringify({
+  //       "user_app_id": {
+  //           "user_id": USER_ID,
+  //           "app_id": APP_ID
+  //       },
+  //       "inputs": [
+  //           {
+  //               "data": {
+  //                   "image": {
+  //                       "url": IMAGE_URL
+  //                   }
+  //               }
+  //           }
+  //       ]
+  //   });
+
+  //   const requestOptions = {
+  //       method: 'POST',
+  //       headers: {
+  //           'Accept': 'application/json',
+  //           'Authorization': 'Key ' + PAT
+  //       },
+  //       body: raw
+  //   };
+
+  //   fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
+  //   .then(response => response.json())
+  //   .then(result => {
+  //     if(result.status.code === 10000) {
+  //       fetch('http://localhost:3001/image', {
+  //         method: 'put',
+  //         headers: {'Content-Type': 'application/json'},
+  //         body: JSON.stringify({
+  //             id: this.state.user.id
+  //         })
+  //       })
+  //       .then(response => response.json())
+  //       .then(count => {
+  //         this.setState(Object.assign(this.state.user, {entries: count}))
+  //       })
+  //       this.displayFaceBox(this.calculateFaceLocation(result)) 
+  //     } else {
+  //       document.getElementById('imageURLP').innerHTML = 'Invalid URL'
+  //     }
+  //   })
+  //   .catch(error => console.log('error', error));
+  // }
+
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-
-    const PAT = 'f41bf90f24ec43e9971cb08b1da25c17';
-    const USER_ID = '866k7usojo3m';       
-    const APP_ID = 'test';
-    const MODEL_ID = 'face-detection';
-    //const IMAGE_URL = 'https://www.shutterstock.com/image-photo/beauty-woman-face-portrait-beautiful-260nw-323982494.jpg';
+ 
     const IMAGE_URL = this.state.input;
 
-    const raw = JSON.stringify({
-        "user_app_id": {
-            "user_id": USER_ID,
-            "app_id": APP_ID
-        },
-        "inputs": [
-            {
-                "data": {
-                    "image": {
-                        "url": IMAGE_URL
-                    }
-                }
-            }
-        ]
-    });
-
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Key ' + PAT
-        },
-        body: raw
-    };
-
-    fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          if(result) {
-            fetch('http://localhost:3001/image', {
-              method: 'put',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                  id: this.state.user.id
-              })
-            })
-            .then(response => response.json())
-            .then(count => {
-              this.setState(Object.assign(this.state.user, {entries: count}))
-            })
-          }
-          this.displayFaceBox(this.calculateFaceLocation(result)) 
+    fetch('http://localhost:3001/image/ClarifaiCall', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+          url: IMAGE_URL
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+      if(result.status.code === 10000) {
+        fetch('http://localhost:3001/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+              id: this.state.user.id
+          })
         })
-        .catch(error => console.log('error', error));
+        .then(response => response.json())
+        .then(count => {
+          this.setState(Object.assign(this.state.user, {entries: count}))
+        })
+        this.displayFaceBox(this.calculateFaceLocation(result)) 
+      } else {
+        document.getElementById('imageURLP').innerHTML = 'Invalid URL'
+      }
+    })
+    .catch(error => console.log('error', error));
   }
 
   onRouteChange = (route) => {
     if(route === 'signout') {
-      this.setState({isSignedIn: false})
+      this.setState(initialState)
     } else if (route === 'home') {
       this.setState({isSignedIn: true})
     }
